@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/const.dart';
 import 'package:quiz_app/quiz_question_model.dart';
+import 'package:quiz_app/result_screen.dart';
 
 class PlayQuizScreen extends StatefulWidget {
   const PlayQuizScreen({super.key});
@@ -111,7 +112,17 @@ class _PlayQuizScreenState extends State<PlayQuizScreen> {
 
             if (currentIndex != quizQuestions.length) {
               pageController.jumpToPage(currentIndex);
-            } else {}
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ResultScreen(
+                    correctAnswers: correctAnswers,
+                    wrongAnswers: wrongAnswers,
+                  ),
+                ),
+              );
+            }
           } else {}
         },
         child: Container(
