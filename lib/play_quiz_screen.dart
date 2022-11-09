@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_app/const.dart';
+import 'package:quiz_app/quiz_question_model.dart';
 
 class PlayQuizScreen extends StatefulWidget {
   const PlayQuizScreen({super.key});
@@ -9,6 +10,11 @@ class PlayQuizScreen extends StatefulWidget {
 }
 
 class _PlayQuizScreenState extends State<PlayQuizScreen> {
+  final PageController pageController = PageController();
+  bool isAnswerLocked = false;
+  int currentIndex = 0, correctAnswers = 0, wrongAnswers = 0;
+  String correctAnswer = "", selectectedAnswer = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,18 +31,22 @@ class _PlayQuizScreenState extends State<PlayQuizScreen> {
         ),
       ),
       body: PageView.builder(
-        itemCount: 10,
+        controller: pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: quizQuestions.length,
         itemBuilder: (context, index) {
+          QuizQuestionModel model = quizQuestions[index];
+
           return Padding(
             padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "This is a Question",
-                    style: TextStyle(
+                    model.question,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -46,11 +56,17 @@ class _PlayQuizScreenState extends State<PlayQuizScreen> {
                 const SizedBox(height: 20),
                 Column(
                   children: List.generate(
-                    4,
+                    model.options.length,
                     (index) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          setState(() {
+                            isAnswerLocked = true;
+                            selectectedAnswer = model.options[index];
+                            correctAnswer = model.correctAnswer;
+                          });
+                        },
                         child: Container(
                           height: 50,
                           width: double.infinity,
@@ -59,12 +75,15 @@ class _PlayQuizScreenState extends State<PlayQuizScreen> {
                               color: foregroundColor,
                             ),
                             borderRadius: BorderRadius.circular(10),
+                            color: selectectedAnswer == model.options[index]
+                                ? foregroundColor
+                                : backgroundColor,
                           ),
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(14),
                           child: Text(
-                            "Option 1",
-                            style: TextStyle(
+                            model.options[index],
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
                             ),
@@ -80,7 +99,21 @@ class _PlayQuizScreenState extends State<PlayQuizScreen> {
         },
       ),
       bottomNavigationBar: InkWell(
-        onTap: () {},
+        onTap: () {
+          if (isAnswerLocked) {
+            if (selectectedAnswer == correctAnswer) {
+              correctAnswers++;
+            } else {
+              wrongAnswers++;
+            }
+
+            currentIndex++;
+
+            if (currentIndex != quizQuestions.length) {
+              pageController.jumpToPage(currentIndex);
+            } else {}
+          } else {}
+        },
         child: Container(
           height: 70,
           color: foregroundColor,
